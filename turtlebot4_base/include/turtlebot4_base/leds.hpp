@@ -43,6 +43,7 @@ struct Turtlebot4Led
 {
   Turtlebot4LedType type_;
   std::shared_ptr<GpioInterface> gpio_interface_;
+  std::shared_ptr<GpioInterface> gpio_interface2_;
   uint8_t green_pin_, red_pin_;
   rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr led_sub_;
 
@@ -63,7 +64,13 @@ struct Turtlebot4Led
     green_pin_(green_pin),
     red_pin_(red_pin)
   {
-    gpio_interface->add_line(green_pin, LINE_DIRECTION_OUTPUT);
+    if (green_pin==16){ // fixed led_green_battery: 22/20-P15-16(2) gpiochip2
+      gpio_interface2_ = std::make_shared<GpioInterface>(2);
+      gpio_interface2_->add_line(green_pin, LINE_DIRECTION_OUTPUT);
+    } else {
+      gpio_interface->add_line(green_pin, LINE_DIRECTION_OUTPUT);
+    }
+
     gpio_interface->add_line(red_pin, LINE_DIRECTION_OUTPUT);
   }
 
@@ -77,7 +84,12 @@ struct Turtlebot4Led
     switch (msg->data) {
       case Turtlebot4LedColor::OFF:
         {
-          gpio_interface_->write(green_pin_, 0);
+          if(green_pin_==16){
+            gpio_interface2_->write(green_pin_, 0);
+          }else{
+            gpio_interface_->write(green_pin_, 0);     
+          }
+          
           if (type_ == Turtlebot4LedType::RED_GREEN) {
             gpio_interface_->write(red_pin_, 0);
           }
@@ -86,7 +98,11 @@ struct Turtlebot4Led
 
       case Turtlebot4LedColor::GREEN:
         {
-          gpio_interface_->write(green_pin_, 1);
+          if(green_pin_==16){
+            gpio_interface2_->write(green_pin_, 1);
+          }else{
+            gpio_interface_->write(green_pin_, 1);
+          }
           if (type_ == Turtlebot4LedType::RED_GREEN) {
             gpio_interface_->write(red_pin_, 0);
           }
@@ -95,7 +111,11 @@ struct Turtlebot4Led
 
       case Turtlebot4LedColor::RED:
         {
-          gpio_interface_->write(green_pin_, 0);
+          if(green_pin_==16){
+            gpio_interface2_->write(green_pin_, 0);
+          }else{
+            gpio_interface_->write(green_pin_, 0);
+          }
           if (type_ == Turtlebot4LedType::RED_GREEN) {
             gpio_interface_->write(red_pin_, 1);
           }
@@ -105,7 +125,11 @@ struct Turtlebot4Led
       case Turtlebot4LedColor::YELLOW:
         {
           if (type_ == Turtlebot4LedType::RED_GREEN) {
-            gpio_interface_->write(green_pin_, 1);
+            if(green_pin_==16){
+              gpio_interface2_->write(green_pin_, 1);
+            }else{
+              gpio_interface_->write(green_pin_, 1);
+            }
             gpio_interface_->write(red_pin_, 1);
           }
           break;

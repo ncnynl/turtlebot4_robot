@@ -51,11 +51,15 @@ Display::Display(
   // Set reset pin high to enter normal operation mode
   gpio->write(nh_->get_parameter("gpio.display_reset").as_int(), 1);
   // Initialize oled driver
+  nh_->declare_parameter("base.i2c_device_id", 0x3C);
+  uint8_t device_id_ = nh_->get_parameter("base.i2c_device_id").as_int();
+  oled_ = turtlebot4_base::Ssd1306(i2c, device_id_);
   oled_.Init();
 }
 
 void Display::display_callback(const turtlebot4_msgs::msg::UserDisplay::SharedPtr msg)
 {
+  // RCLCPP_INFO(nh_->get_logger(), "Get UserDisplay Info: %s" , msg->ip);
   oled_.Fill(Black);
   // Draw header
   oled_.SetCursor(0, 0);

@@ -74,8 +74,9 @@ void GpioInterface::add_line(uint8_t line, GpioInterfaceLineDirection direction)
 
   if (gpio_line != nullptr) {
     lines_.insert(std::pair<uint8_t, gpiod_line *>(line, gpio_line));
+    printf("GPIO Line: : %d , chip_: %s \r\n", line, gpio_chip_.c_str());
   } else {
-    std::cerr << "Invalid GPIO Line" << std::endl;
+    std::cerr << "Invalid GPIO Line: " << static_cast<int>(line) << " chip_: " << gpio_chip_.c_str() << std::endl;
     return;
   }
 

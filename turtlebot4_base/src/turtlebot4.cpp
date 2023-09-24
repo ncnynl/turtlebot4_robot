@@ -38,9 +38,13 @@ Turtlebot4::Turtlebot4()
   // Create node handle
   node_handle_ = std::shared_ptr<::rclcpp::Node>(this, [](::rclcpp::Node *) {});
 
-  gpiochip0_ = std::make_shared<GpioInterface>(0);
+  node_handle_->declare_parameter("base.gpiochip0", 0);
+  const uint8_t gpiochip0 = node_handle_->get_parameter("base.gpiochip0").as_int();
+  gpiochip0_ = std::make_shared<GpioInterface>(gpiochip0);
 
-  i2c3_ = std::make_shared<I2cInterface>(3);
+  node_handle_->declare_parameter("base.i2c_bus", 3);
+  const uint8_t i2c_bus = node_handle_->get_parameter("base.i2c_bus").as_int();
+  i2c3_ = std::make_shared<I2cInterface>(i2c_bus);
 
   // Buttons
   buttons_ = std::make_unique<Buttons>(node_handle_, gpiochip0_);
